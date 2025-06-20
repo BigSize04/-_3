@@ -1,0 +1,139 @@
+#include <iostream>
+using namespace std;
+
+// Завдання 1
+// Поміняти місцями елементи з парними й непарними індексами
+void swapEvenOdd(int* arr, int size) {
+    for (int i = 0; i < size - 1; i += 2) {
+        int* p1 = arr + i;
+        int* p2 = arr + i + 1;
+        int tmp = *p1;
+        *p1 = *p2;
+        *p2 = tmp;
+    }
+}
+
+// Завдання 2
+// Злиття двох відсортованих масивів у один впорядкований
+void mergeSorted(int* A, int n, int* B, int m, int* C) {
+    int* pa = A;
+    int* pb = B;
+    int* pc = C;
+
+    while (pa < A + n && pb < B + m) {
+        if (*pa < *pb)
+            *pc++ = *pa++;
+        else
+            *pc++ = *pb++;
+    }
+    while (pa < A + n)
+        *pc++ = *pa++;
+    while (pb < B + m)
+        *pc++ = *pb++;
+}
+
+// Допоміжна функція: перевірка наявності елемента у масиві
+bool contains(int* begin, int* end, int value) {
+    for (int* p = begin; p < end; ++p)
+        if (*p == value) return true;
+    return false;
+}
+
+// Завдання 3
+// Формування різних типів об'єднань масивів
+void analyzeArrays(
+    int* A, int n, int* B, int m,
+    int* all, int& sizeAll,
+    int* common, int& sizeCommon,
+    int* onlyA, int& sizeOnlyA,
+    int* onlyB, int& sizeOnlyB,
+    int* diff, int& sizeDiff)
+{
+    sizeAll = sizeCommon = sizeOnlyA = sizeOnlyB = sizeDiff = 0;
+
+    // Усі елементи A
+    for (int* p = A; p < A + n; ++p) {
+        *(all + sizeAll) = *p;
+        sizeAll++;
+
+        if (!contains(B, B + m, *p)) {
+            *(onlyA + sizeOnlyA) = *p;
+            sizeOnlyA++;
+        }
+        else {
+            *(common + sizeCommon) = *p;
+            sizeCommon++;
+        }
+    }
+
+    // Усі елементи B
+    for (int* p = B; p < B + m; ++p) {
+        *(all + sizeAll) = *p;
+        sizeAll++;
+
+        if (!contains(A, A + n, *p)) {
+            *(onlyB + sizeOnlyB) = *p;
+            sizeOnlyB++;
+        }
+    }
+
+    // Елементи, які є або тільки в A, або тільки в B
+    for (int i = 0; i < sizeOnlyA; ++i)
+        *(diff + sizeDiff++) = *(onlyA + i);
+    for (int i = 0; i < sizeOnlyB; ++i)
+        *(diff + sizeDiff++) = *(onlyB + i);
+}
+
+// === Допоміжна функція для друку масиву ===
+void printArray(int* arr, int size, const char* name) {
+    cout << name << " (" << size << "): ";
+    for (int* p = arr; p < arr + size; ++p)
+        cout << *p << " ";
+    cout << endl;
+}
+
+int main() {
+    setlocale(0, "ru");
+    // Завдання 1
+    cout << "--- Завдання 1 ---" << endl;
+    int arr1[] = { 10, 20, 30, 40, 50, 60 };
+    int size1 = sizeof(arr1) / sizeof(arr1[0]);
+
+    cout << "До обміну: ";
+    printArray(arr1, size1, "arr1");
+    swapEvenOdd(arr1, size1);
+    cout << "Після обміну: ";
+    printArray(arr1, size1, "arr1");
+
+    // Завдання 2 
+    cout << "\n--- Завдання 2 ---" << endl;
+    int A[] = { 1, 3, 5, 7 };
+    int B[] = { 2, 4, 6, 8, 10 };
+    const int n = sizeof(A) / sizeof(A[0]);
+    const int m = sizeof(B) / sizeof(B[0]);
+    int C[n + m];
+
+    mergeSorted(A, n, B, m, C);
+    printArray(A, n, "A");
+    printArray(B, m, "B");
+    printArray(C, n + m, "C (злиття)");
+
+    // Завдання 3
+    cout << "\n--- Завдання 3 ---" << endl;
+    int all[n + m];
+    int common[min(n, m)];
+    int onlyA[n], onlyB[m];
+    int diff[n + m];
+    int sizeAll, sizeCommon, sizeOnlyA, sizeOnlyB, sizeDiff;
+
+    analyzeArrays(A, n, B, m, all, sizeAll, common, sizeCommon,
+        onlyA, sizeOnlyA, onlyB, sizeOnlyB, diff, sizeDiff);
+
+    printArray(all, sizeAll, "Усі елементи");
+    printArray(common, sizeCommon, "Загальні елементи");
+    printArray(onlyA, sizeOnlyA, "Лише в A");
+    printArray(onlyB, sizeOnlyB, "Лише в B");
+    printArray(diff, sizeDiff, "Відмінні (симетрична різниця)");
+
+    return 0;
+}
